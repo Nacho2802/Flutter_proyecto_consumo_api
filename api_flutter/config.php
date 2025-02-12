@@ -4,7 +4,7 @@
 define('DB_SERVER', 'localhost');  // o IP de tu servidor de base de datos
 define('DB_USERNAME', 'root');     // tu usuario de MySQL
 define('DB_PASSWORD', '');         // tu contraseña de MySQL
-define('DB_DATABASE', 'productos');  // nombre de tu base de datos
+define('DB_DATABASE', 'flutter_2-2024');  // nombre de tu base de datos
 
 // Conexión a la base de datos
 function getDB() {
