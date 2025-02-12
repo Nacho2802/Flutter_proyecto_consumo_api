@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert'; // Para convertir el JSON
 import 'package:flutter_application_update/models/producto.dart'; // Asegúrate de importar la clase Producto
 import 'package:flutter_application_update/screens/edit_record_screen.dart'; // Ajusta la ruta según tu estructura
+import 'dart:async'; 
 
 
 class RecordListScreen extends StatefulWidget {
@@ -24,10 +25,12 @@ class _RecordListScreenState extends State<RecordListScreen> {
 
   // Función para obtener los productos desde la API
   Future<void> _fetchProductos() async {
-    final response = await http.get(Uri.parse('http://tu_api_url/productos'));
+  try {
+    final response = await http
+        .get(Uri.parse('http://localhost/api_flutter/'))
+        .timeout(const Duration(seconds: 10)); // Tiempo máximo de espera
 
     if (response.statusCode == 200) {
-      // Si la solicitud es exitosa, parseamos el JSON
       List<dynamic> data = json.decode(response.body);
       setState(() {
         productos = data.map((producto) => Producto.fromJson(producto)).toList();
@@ -35,7 +38,16 @@ class _RecordListScreenState extends State<RecordListScreen> {
     } else {
       throw Exception('Error al cargar los productos');
     }
+  } on TimeoutException {
+    print("Error: Tiempo de espera agotado.");
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Tiempo de espera agotado."))
+    );
+  } catch (e) {
+    print("Error: $e");
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
