@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert'; // Para convertir el JSON
-import 'package:flutter_application_update/models/producto.dart'; // Asegúrate de importar la clase Producto
-import 'package:flutter_application_update/screens/edit_record_screen.dart'; // Ajusta la ruta según tu estructura
-import 'dart:async'; 
-
+import 'dart:convert';
+import 'package:flutter_application_update/models/producto.dart';
+import 'package:flutter_application_update/screens/edit_record_screen.dart';
+import 'dart:async';
 
 class RecordListScreen extends StatefulWidget {
   const RecordListScreen({super.key});
@@ -14,47 +13,88 @@ class RecordListScreen extends StatefulWidget {
 }
 
 class _RecordListScreenState extends State<RecordListScreen> {
-  // Lista de productos que se llenará con la respuesta de la API
   List<Producto> productos = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchProductos(); // Llamamos a la función para obtener los productos desde la API
+    _fetchProductos();
   }
 
-  // Función para obtener los productos desde la API
-  Future<void> _fetchProductos() async {
-  try {
-    final response = await http
-        .get(Uri.parse('http://localhost/api_flutter/'))
-        .timeout(const Duration(seconds: 10)); // Tiempo máximo de espera
-
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      setState(() {
-        productos = data.map((producto) => Producto.fromJson(producto)).toList();
-      });
-    } else {
-      throw Exception('Error al cargar los productos');
+  double _convertToDouble(dynamic value) {
+    try {
+      if (value == null || value.toString().isEmpty) return 0.0;
+      return double.tryParse(value.toString()) ?? 0.0;
+    } catch (e) {
+      print("Error al convertir a double: $e");
+      return 0.0;
     }
-  } on TimeoutException {
-    print("Error: Tiempo de espera agotado.");
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Tiempo de espera agotado."))
-    );
-  } catch (e) {
-    print("Error: $e");
   }
-}
 
+  Future<void> _fetchProductos() async {
+    try {
+      final response = await http.get(Uri.parse('http://localhost/api_flutter/')) //http://192.168.1.9/api_flutter/
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+
+        List<Producto> fetchedProductos = [];
+        for (var item in data) {
+          if (item['codigo'] != null && item['nombre'] != null) {
+            fetchedProductos.add(Producto.fromJson({
+              'codigo': item['codigo'],
+              'nombre': item['nombre'],
+              'descripcion': item['descripcion'] ?? '',
+              'cantidad': _convertToDouble(item['cantidad']),
+              'precio': _convertToDouble(item['precio']),
+              'impuesto': _convertToDouble(item['impuesto']),
+            }));
+          } else {
+            print('Producto con datos faltantes: $item');
+          }
+        }
+
+        setState(() {
+          productos = fetchedProductos;
+        });
+      } else {
+        throw Exception('Error al cargar los productos');
+      }
+    } on TimeoutException {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Tiempo de espera agotado.")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+  }
+
+  // Función para actualizar un producto en la lista
+  void _updateProductInList(String codigo, String newName, String newDescription, double newPrice, int newQuantity, double newTax) {
+    setState(() {
+      int index = productos.indexWhere((prod) => prod.codigo == codigo);
+      if (index != -1) {
+        productos[index] = Producto(
+          codigo: codigo,
+          nombre: newName,
+          descripcion: newDescription,
+          cantidad: newQuantity.toDouble(),
+          precio: newPrice,
+          impuesto: newTax,
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Listado de Productos')),
       body: productos.isEmpty
-          ? const Center(child: CircularProgressIndicator()) // Muestra el indicador de carga si no hay productos
+          ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
               itemCount: productos.length,
               itemBuilder: (context, index) {
@@ -65,8 +105,28 @@ class _RecordListScreenState extends State<RecordListScreen> {
                     subtitle: Text('Precio: ${productos[index].precio}'),
                     trailing: IconButton(
                       icon: const Icon(Icons.edit, color: Colors.blue),
-                      onPressed: () {
-                        // Aquí podrías agregar la funcionalidad de edición si es necesario
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditRecordScreen(
+                              id: productos[index].codigo,
+                              currentName: productos[index].nombre,
+                              currentDescription: productos[index].descripcion,
+                              currentPrice: productos[index].precio,
+                              currentQuantity: productos[index].cantidad.toInt(),
+                              currentTax: productos[index].impuesto,
+                              onUpdate: (newName, newDescription, newPrice, newQuantity, newTax) {
+                                _updateProductInList(productos[index].codigo, newName, newDescription, newPrice, newQuantity, newTax);
+                              },
+                            ),
+                          ),
+                        );
+
+                        // Si la pantalla de edición devuelve 'true', recargar la lista
+                        if (result == true) {
+                          _fetchProductos();
+                        }
                       },
                     ),
                   ),
