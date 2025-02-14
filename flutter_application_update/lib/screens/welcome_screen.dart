@@ -42,7 +42,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Bienvenidos')),
+      appBar: AppBar(title: const Text('Bienvenidos'), backgroundColor: Colors.deepPurple),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -75,16 +75,55 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         ),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Image.asset('images/descargar.png', width: 150, height: 150),
-            const SizedBox(height: 20),
-            const Text('Bienvenidos', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue)),
-            const SizedBox(height: 10),
-            Text('Fecha: $currentDate', style: const TextStyle(fontSize: 16, color: Colors.black54)),
-            Text('Hora: $currentTime', style: const TextStyle(fontSize: 16, color: Colors.black54)),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Image.asset('images/descargar.png', width: 150, height: 150),
+              const SizedBox(height: 20),
+              const Text(
+                'Bienvenidos',
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepPurple),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Fecha: $currentDate',
+                style: const TextStyle(fontSize: 16, color: Colors.black54),
+              ),
+              Text(
+                'Hora: $currentTime',
+                style: const TextStyle(fontSize: 16, color: Colors.black54),
+              ),
+              const SizedBox(height: 30),
+              // Sección de integrantes del equipo
+              const Text(
+                'Integrantes del equipo:',
+                style: TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                '• Ignacio Pérez',
+                style: TextStyle(fontSize: 16, color: Colors.black87),
+              ),
+              const Text(
+                '• Roberto Quintero',
+                style: TextStyle(fontSize: 16, color: Colors.black87),
+              ),
+              const Text(
+                '• David Mendoza',
+                style: TextStyle(fontSize: 16, color: Colors.black87),
+              ),
+              const Text(
+                '• Jose Franco',
+                style: TextStyle(fontSize: 16, color: Colors.black87),
+              ),
+            ],
+          ),
         ),
       ),
     );

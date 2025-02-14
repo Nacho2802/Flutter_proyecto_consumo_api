@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'welcome_screen.dart';  
 
 class EditRecordScreen extends StatefulWidget {
   final String id;
@@ -53,63 +54,71 @@ class _EditRecordScreenState extends State<EditRecordScreen> {
     super.dispose();
   }
 
- Future<bool> _updateProduct() async {
-  if (nameController.text.isEmpty ||
-      descriptionController.text.isEmpty ||
-      priceController.text.isEmpty ||
-      quantityController.text.isEmpty ||
-      taxController.text.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Por favor, completa todos los campos.")),
-    );
-    return false;
-  }
+  Future<void> _updateProduct() async {
+    if (nameController.text.isEmpty ||
+        descriptionController.text.isEmpty ||
+        priceController.text.isEmpty ||
+        quantityController.text.isEmpty ||
+        taxController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Por favor, completa todos los campos.")),
+      );
+      return;
+    }
 
- final url = Uri.parse('http://localhost/api_flutter/index.php');
+    final url = Uri.parse('http://localhost/api_flutter/index.php'); // Cambiar localhost si usas emulador Android
 
-  try {
-    final response = await http.put(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "codigo": widget.id,
-        "nombre": nameController.text.trim(),
-        "descripcion": descriptionController.text.trim(),
-        "precio": double.tryParse(priceController.text) ?? 0.0,
-        "cantidad": int.tryParse(quantityController.text) ?? 0,
-        "impuesto": double.tryParse(taxController.text) ?? 0.0,
-      }),
-    );
+    try {
+      final response = await http.put(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "codigo": widget.id,
+          "nombre": nameController.text.trim(),
+          "descripcion": descriptionController.text.trim(),
+          "precio": double.tryParse(priceController.text) ?? 0.0,
+          "cantidad": double.tryParse(quantityController.text) ?? 0,
+          "impuesto": double.tryParse(taxController.text) ?? 0.0,
+        }),
+      );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['message'] == "Producto actualizado correctamente") {
-        widget.onUpdate(
-          nameController.text.trim(),
-          descriptionController.text.trim(),
-          double.parse(priceController.text),
-          int.parse(quantityController.text),
-          double.parse(taxController.text),
-        );
-        return true;
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['message'] == "Producto actualizado correctamente") {
+          widget.onUpdate(
+            nameController.text.trim(),
+            descriptionController.text.trim(),
+            double.parse(priceController.text),
+            int.parse(quantityController.text),
+            double.parse(taxController.text),
+          );
+
+          // Mostrar el mensaje de "DATOS ACTUALIZADOS"
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("DATOS ACTUALIZADOS")),
+          );
+
+          // Redirigir a la pantalla principal (WelcomeScreen)
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Error al actualizar: ${data['message']}")),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error al actualizar: ${data['message']}")),
+          SnackBar(content: Text("Error en la respuesta del servidor: ${response.statusCode}")),
         );
       }
-    } else {
+    } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Error en la respuesta del servidor.")),
+        SnackBar(content: Text("Error en la solicitud: $error")),
       );
     }
-  } catch (error) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Error en la solicitud: $error")),
-    );
   }
-  return false;
-}
-
 
   @override
   Widget build(BuildContext context) {

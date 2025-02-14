@@ -21,7 +21,7 @@ class _RecordListScreenState extends State<RecordListScreen> {
 
   // Función para obtener los registros desde la API
   Future<void> _fetchRecords() async {
-  final url = Uri.parse('http://localhost/api_flutter/get_records.php/');
+  final url = Uri.parse('http://localhost/api_flutter/index.php'); 
   try {
     final response = await http.get(url);
     print('Respuesta de la API: ${response.body}');

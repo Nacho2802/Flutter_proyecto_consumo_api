@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter_application_update/models/producto.dart';
 import 'package:flutter_application_update/screens/edit_record_screen.dart';
 import 'dart:async';
+import 'package:logger/logger.dart';
 
 class RecordListScreen extends StatefulWidget {
   const RecordListScreen({super.key});
@@ -32,16 +33,18 @@ class _RecordListScreenState extends State<RecordListScreen> {
   }
 
   Future<void> _fetchProductos() async {
+    var logger = Logger();
     try {
-      final response = await http.get(Uri.parse('http://localhost/api_flutter/')) //http://192.168.1.9/api_flutter/
+      final response = await http.get(Uri.parse('http://localhost/api_flutter/index.php')) 
           .timeout(const Duration(seconds: 10));
-
+      logger.d('Respuesta de la API: ${response.body}');
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
 
         List<Producto> fetchedProductos = [];
         for (var item in data) {
-          if (item['codigo'] != null && item['nombre'] != null) {
+          // Verificación de todos los campos relevantes
+          if (item['codigo'] != null && item['nombre'] != null && item['cantidad'] != null && item['precio'] != null && item['impuesto'] != null) {
             fetchedProductos.add(Producto.fromJson({
               'codigo': item['codigo'],
               'nombre': item['nombre'],
@@ -51,7 +54,7 @@ class _RecordListScreenState extends State<RecordListScreen> {
               'impuesto': _convertToDouble(item['impuesto']),
             }));
           } else {
-            print('Producto con datos faltantes: $item');
+            print('Producto con datos faltantes o inválidos: $item');
           }
         }
 
@@ -85,6 +88,9 @@ class _RecordListScreenState extends State<RecordListScreen> {
           precio: newPrice,
           impuesto: newTax,
         );
+        print("Producto actualizado: ${productos[index].codigo}");
+      } else {
+        print("Producto con código $codigo no encontrado para actualizar.");
       }
     });
   }
