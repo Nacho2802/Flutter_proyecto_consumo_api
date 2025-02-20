@@ -3,7 +3,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'welcome_screen.dart';  
 
+
 class EditRecordScreen extends StatefulWidget {
+  
   final String id;
   final String currentName;
   final String currentDescription;

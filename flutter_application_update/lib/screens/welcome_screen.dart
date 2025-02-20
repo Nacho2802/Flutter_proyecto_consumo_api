@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'record_list_screen.dart';
+import 'package:camera/camera.dart';
+import 'camera_screen.dart'; // Importa tu archivo de cámara aquí
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -14,15 +16,23 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   late String currentDate;
   late String currentTime;
   late Timer timer;
+  late CameraDescription firstCamera;
 
   @override
   void initState() {
     super.initState();
     _updateDateTime();
+    _initializeCamera();
 
     timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
       _updateDateTime();
     });
+  }
+
+  Future<void> _initializeCamera() async {
+    final cameras = await availableCameras();
+    firstCamera = cameras.first;
+    setState(() {});
   }
 
   void _updateDateTime() {
@@ -59,6 +69,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               title: const Text('Inicio'),
               onTap: () {
                 Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera),
+              title: const Text('Cámara'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CameraScreen(camera: firstCamera)),
+                );
               },
             ),
             ListTile(
