@@ -66,7 +66,7 @@ class _EditRecordScreenState extends State<EditRecordScreen> {
       return;
     }
 
-    final url = Uri.parse('http://localhost/api_flutter/index.php'); // Cambiar localhost si usas emulador Android
+    final url = Uri.parse('http://192.168.1.8/api_flutter/index.php'); // Cambiar localhost si usas emulador Android
 
     try {
       final response = await http.put(

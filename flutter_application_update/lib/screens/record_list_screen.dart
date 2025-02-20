@@ -35,7 +35,7 @@ class _RecordListScreenState extends State<RecordListScreen> {
   Future<void> _fetchProductos() async {
     var logger = Logger();
     try {
-      final response = await http.get(Uri.parse('http://localhost/api_flutter/index.php')) 
+      final response = await http.get(Uri.parse('http://192.168.1.9/api_flutter/index.php')) 
           .timeout(const Duration(seconds: 10));
       logger.d('Respuesta de la API: ${response.body}');
       if (response.statusCode == 200) {

@@ -35,7 +35,7 @@ class Producto {
 
 // Función para obtener la lista de productos desde la API
 Future<List<Producto>> fetchProductos() async {
-  final response = await http.get(Uri.parse('http://localhost/api_flutter/producto.php'));
+  final response = await http.get(Uri.parse('http://192.168.1.9/api_flutter/index.php'));
 
   if (response.statusCode == 200) {
     // Si la respuesta es exitosa, parseamos la respuesta JSON
