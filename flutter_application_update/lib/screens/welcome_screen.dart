@@ -2,7 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'record_list_screen.dart';
-import 'create_product_screen.dart'; // Importamos la pantalla de creación de productos
+import 'list_screen.dart'; 
+import 'create_product_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -72,13 +73,24 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 );
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.add_box), // Icono para la creación de productos
+             ListTile(
+              leading: const Icon(Icons.add_box), 
               title: const Text('Crear Producto'),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => CrearProductoScreen()),
+                );
+              },
+            ),
+            // Cambié la referencia aquí a la pantalla ListScreen
+            ListTile(
+              leading: const Icon(Icons.list_alt),
+              title: const Text('Lista de Productos'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ListScreen()), 
                 );
               },
             ),
